@@ -47,8 +47,16 @@ public class Parser {
         case "add_photo":
             return parseAddPhoto(rest);
         default:
-            throw new TravelDiaryException("I'm sorry, I don't understand what you want me to do :c\n"
-                    + "Please refer to the manual coming soon!");
+            // New instruction for unrecognized command
+            throw new TravelDiaryException("I'm sorry, I don't understand that command. Please refer to the following instructions:\n"
+                    + "Available commands:\n"
+                    + "- bye: Exit the application\n"
+                    + "- add_trip: Add a new trip (format: add_trip n#<name> d#<description> l#<location>)\n"
+                    + "- add_photo: Add a new photo (format: add_photo f#<filepath> n#<photoname> c#<caption> l#<location>)\n"
+                    + "- delete: Delete a trip/photo (format: delete <index>)\n"
+                    + "- list: List all trips\n"
+                    + "- select: Select a trip/photo by index (format: select <index>)\n"
+                    + "- menu: Show the main menu");
         }
     }
 

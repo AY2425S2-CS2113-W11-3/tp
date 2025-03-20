@@ -35,6 +35,10 @@ public class Album {
         System.out.println("Photo deleted successfully.");
     }
 
+    public List<Photo> getPhotos() {
+        return photos;
+    }
+
     public void viewPhotos() {
         if (photos.isEmpty()) {
             System.out.println("No photos found.");

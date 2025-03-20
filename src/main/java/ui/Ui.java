@@ -1,10 +1,11 @@
 package ui;
 
-
 import java.util.Arrays;
 import java.util.Scanner;
 
 import parser.Parser;
+import storage.Storage;
+import trip.Trip;
 
 public class Ui {
     private static final String SEPARATOR_LINE = "____________________________________________________________\n";
@@ -26,7 +27,7 @@ public class Ui {
     }
 
     public void showLine() {
-        System.out.println("----");
+        System.out.println(SEPARATOR_LINE);
     }
 
     public void showToUser(String message) {
@@ -38,7 +39,21 @@ public class Ui {
     }
 
     public void showAvailableCommands() {
-        Arrays.stream(COMMAND_ARRAY).forEach((i) -> System.out.println("    - " + i));
+        // Check if there are trips
+        if (Storage.loadTrips().isEmpty()) {
+            // Only show commands related to trip management when there are no trips
+            System.out.println("Available commands for you:");
+            Arrays.stream(new String[]{"menu", "bye", "add_trip", "delete", "list", "select"})
+                    .forEach(command -> System.out.println("    - " + command));
+        } else {
+            // Show full set of commands if there are trips
+            System.out.println("Available commands for you:");
+            Arrays.stream(COMMAND_ARRAY).forEach(command -> System.out.println("    - " + command));
+        }
         System.out.println(System.lineSeparator());
+    }
+
+    public void showTripSelectionMessage() {
+        System.out.println("Please select a trip first to add photos or perform other actions related to the trip.");
     }
 }
