@@ -3,8 +3,14 @@ package storage;
 import trip.Trip;
 import photo.Photo;
 import exception.TravelDiaryException;
+import java.io.File;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;

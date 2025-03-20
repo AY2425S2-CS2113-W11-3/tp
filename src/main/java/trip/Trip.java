@@ -41,3 +41,4 @@ public class Trip {
         return name + " - " + description + " (" + location + ")";
     }
 }
+
