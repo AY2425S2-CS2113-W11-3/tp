@@ -1,18 +1,22 @@
 package ui;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 import parser.Parser;
 import storage.Storage;
+import trip.Trip;
 
 public class Ui {
     private static final String SEPARATOR_LINE = "____________________________________________________________\n";
     public static final String[] COMMAND_ARRAY = Parser.COMMAND_ARRAY;
     private final Scanner scanner;
+    private List<Trip> trips;
 
     public Ui() {
         this.scanner = new Scanner(System.in);
+        this.trips = Storage.loadTrips(); // Load trips once when UI is initialized
     }
 
     public String readInput() {
@@ -40,7 +44,7 @@ public class Ui {
 
     public void showAvailableCommands() {
         // Check if there are trips
-        if (Storage.loadTrips().isEmpty()) {
+        if (trips.isEmpty()) {
             // Only show commands related to trip management when there are no trips
             System.out.println("Available commands for you:");
             Arrays.stream(new String[]{"menu", "bye", "add_trip", "delete", "list", "select"})
