@@ -48,7 +48,8 @@ public class Parser {
             return parseAddPhoto(rest);
         default:
             // New instruction for unrecognized command
-            throw new TravelDiaryException("I'm sorry, I don't understand that command. Please refer to the following instructions:\n"
+            throw new TravelDiaryException("I'm sorry, I don't understand that command. " +
+                    "Please refer to the following instructions:\n"
                     + "Available commands:\n"
                     + "- bye: Exit the application\n"
                     + "- add_trip: Add a new trip (format: add_trip n#<name> d#<description> l#<location>)\n"

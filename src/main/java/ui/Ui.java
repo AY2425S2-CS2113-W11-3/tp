@@ -5,7 +5,6 @@ import java.util.Scanner;
 
 import parser.Parser;
 import storage.Storage;
-import trip.Trip;
 
 public class Ui {
     private static final String SEPARATOR_LINE = "____________________________________________________________\n";
@@ -21,7 +20,8 @@ public class Ui {
     }
 
     public void showWelcome() {
-        System.out.println("Welcome to your Travel Diary Management System!\nTo continue, please press one of the " +
+        System.out.println("Welcome to your Travel Diary Management System!\n" +
+                "To continue, please press one of the " +
                 "commands.\n");
         showAvailableCommands();
     }
