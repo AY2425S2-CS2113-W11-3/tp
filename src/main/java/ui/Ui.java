@@ -20,7 +20,13 @@ public class Ui {
     }
 
     public String readInput() {
-        return scanner.nextLine();
+        try {
+            return scanner.nextLine();
+        } catch (java.util.NoSuchElementException e) {
+            System.err.println("Warning: No input available.");
+            // Either provide a default value or re-throw a more informative exception
+            return "bye"; // Return a command to exit gracefully
+        }
     }
 
     public void showWelcome() {
