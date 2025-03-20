@@ -1,19 +1,23 @@
-@echo off
-setlocal enableextensions
-pushd %~dp0
+#!/usr/bin/env bash
+
+# change to script directory
+cd "${0%/*}"
 
 cd ..
-call gradlew clean shadowJar
+./gradlew clean shadowJar
 
-cd build\libs
-for /f "tokens=*" %%a in (
-    'dir /b *.jar'
-) do (
-    set jarloc=%%a
-)
+cd text-ui-test
 
-java -jar %jarloc% < ..\..\text-ui-test\input.txt > ..\..\text-ui-test\ACTUAL.TXT
+java  -jar $(find ../build/libs/ -mindepth 1 -print -quit) < input.txt > ACTUAL.TXT
 
-cd ..\..\text-ui-test
-
-FC ACTUAL.TXT EXPECTED.TXT >NUL && ECHO Test passed! || Echo Test failed!
+cp EXPECTED.TXT EXPECTED-UNIX.TXT
+dos2unix EXPECTED-UNIX.TXT ACTUAL.TXT
+diff EXPECTED-UNIX.TXT ACTUAL.TXT
+if [ $? -eq 0 ]
+then
+    echo "Test passed!"
+    exit 0
+else
+    echo "Test failed!"
+    exit 1
+fi

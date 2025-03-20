@@ -1,4 +1,4 @@
-package seedu.traveldiary;
+package seedu.duke;
 
 import command.Command;
 import command.CommandFactory;
