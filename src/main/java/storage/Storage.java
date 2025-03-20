@@ -27,7 +27,9 @@ public class Storage {
                 writer.write("Trip: " + trip.name + " | " + trip.description + " | " + trip.location);
                 writer.newLine();
                 for (Photo photo : trip.album.getPhotos()) {
-                    writer.write("  Photo: " + photo.getFilePath() + " | " + photo.getPhotoName() + " | " + photo.getCaption() + " | " + photo.getLocation() + " | " + photo.getDatetime());
+                    writer.write("  Photo: " + photo.getFilePath() + " | " +
+                            photo.getPhotoName() + " | " + photo.getCaption() + " | " +
+                            photo.getLocation() + " | " + photo.getDatetime());
                     writer.newLine();
                 }
                 writer.write("---"); // Separator between trips
