@@ -2,6 +2,7 @@ package trip;
 import exception.TravelDiaryException;
 
 import java.util.List;
+import album.Album;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
@@ -61,5 +62,9 @@ public class TripManager {
         logger.info("Retrieving selected trip.");
         assert selectedTrip != null : "Selected trip should not be null";
         return this.selectedTrip;
+    }
+
+    public List<Trip> getTrips() {
+        return trips;
     }
 }

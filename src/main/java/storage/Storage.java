@@ -1,6 +1,7 @@
 package storage;
 
 import trip.Trip;
+import trip.TripManager;
 import photo.Photo;
 import exception.TravelDiaryException;
 import java.io.BufferedReader;
@@ -9,237 +10,223 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import album.Album;
 
 public class Storage {
-    private static final String FILE_PATH = "./data/travel_diary.trd";
-    private static final Logger LOGGER = Logger.getLogger(Storage.class.getName());
-    private static final String TRIP_MARKER = "T:";
-    private static final String PHOTO_MARKER = "P:";
-    private static final String SECTION_DELIMITER = "===";
-    private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+    private static final String FILE_PATH = "./data/travel_diary.txt";
+    private static final String TRIP_MARKER = "T";
+    private static final String PHOTO_MARKER = "P";
+    private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public static void saveTrips(List<Trip> trips) {
-        // Create directory
-        if (!createDataDirectory()) {
-            return;
-        }
+    public static void saveTasks(List<Trip> trips) {
+        File dataFile = new File(FILE_PATH);
+        dataFile.getParentFile().mkdirs(); // Ensure directory exists
 
-        // Validate trips collection
-        if (trips == null || trips.isEmpty()) {
-            LOGGER.info("No trips to save");
-            return;
-        }
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH))) {
-            // Iterate through trips
-            for (int i = 0; i < trips.size(); i++) {
-                Trip trip = trips.get(i);
-
-                // Skip null trips
-                if (trip == null) {
-                    continue;
-                }
-
-                // Write trip details
-                writeTrip(writer, trip);
-
-                // Write trip photos
-                writePhotos(writer, trip);
-
-                // Add section delimiter (except for last trip)
-                if (i < trips.size() - 1) {
-                    writer.write(SECTION_DELIMITER);
-                    writer.newLine();
-                }
-            }
-
-            LOGGER.info("Trips saved successfully");
-        } catch (IOException saveError) {
-            LOGGER.log(Level.SEVERE, "Trip save failed", saveError);
-        }
-    }
-
-    private static boolean createDataDirectory() {
-        try {
-            Files.createDirectories(Paths.get(FILE_PATH).getParent());
-            return true;
-        } catch (IOException dirError) {
-            LOGGER.log(Level.SEVERE, "Cannot create data directory", dirError);
-            return false;
-        }
-    }
-
-    private static void writeTrip(BufferedWriter writer, Trip trip) throws IOException {
-        // Write trip header with compact encoding
-        writer.write(TRIP_MARKER +
-                encodeString(trip.name) + ";" +
-                encodeString(trip.description) + ";" +
-                encodeString(trip.location)
-        );
-        writer.newLine();
-    }
-
-    private static void writePhotos(BufferedWriter writer, Trip trip) throws IOException {
-        // Validate album
-        if (trip.album == null) {
-            return;
-        }
-
-        // Manually iterate through photos
-        for (int i = 0; i < trip.album.photos.size(); i++) {
-            try {
-                trip.album.selectPhoto(i);
-                Photo selectedPhoto = trip.album.selectedPhoto;
-
-                // Write photo details
-                writer.write(PHOTO_MARKER +
-                        encodeString(selectedPhoto.getFilePath()) + ";" +
-                        encodeString(selectedPhoto.getPhotoName()) + ";" +
-                        encodeString(selectedPhoto.getCaption()) + ";" +
-                        encodeString(selectedPhoto.getLocation()) + ";" +
-                        formatPhotoDateTime(selectedPhoto)
-                );
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(dataFile))) {
+            for (Trip trip : trips) {
+                writer.write(formatTripLine(trip));
                 writer.newLine();
-            } catch (TravelDiaryException photoError) {
-                LOGGER.log(Level.WARNING, "Failed to write photo", photoError);
+
+                if (trip.album != null) {
+                    writer.write("A | " + encodeString(trip.name));
+                    writer.newLine();
+                    System.out.println("Saving album for trip: " + trip.name);  // Log album saving
+
+                    if (trip.album.photos != null) {
+                        for (Photo photo : trip.album.photos) {
+                            writer.write(formatPhotoLine(photo));
+                            writer.newLine();
+                            System.out.println("Saving photo: " + photo.getPhotoName());  // Log each photo saving
+                        }
+                    }
+                }
             }
+        } catch (IOException e) {
+            System.err.println("Error writing to file: " + e.getMessage());
         }
     }
 
-    private static String formatPhotoDateTime(Photo photo) {
-        // Handle null datetime
-        if (photo.getDatetime() == null) {
-            return "";
-        }
-        return photo.getDatetime().format(DATETIME_FORMAT);
+
+    /**
+     * Formats a trip into a line for storage
+     */
+    private static String formatTripLine(Trip trip) {
+        return TRIP_MARKER + " | " +
+                encodeString(trip.name) + " | " +
+                encodeString(trip.description) + " | " +
+                encodeString(trip.location);
     }
 
-    public static List<Trip> loadTrips() {
+    /**
+     * Formats a photo into a line for storage
+     */
+    private static String formatPhotoLine(Photo photo) {
+        String dateTimeString = "";
+        if (photo.getDatetime() != null) {
+            dateTimeString = photo.getDatetime().format(DATETIME_FORMAT);
+        }
+
+        return PHOTO_MARKER + " | " +
+                encodeString(photo.getFilePath()) + " | " +
+                encodeString(photo.getPhotoName()) + " | " +
+                encodeString(photo.getCaption()) + " | " +
+                dateTimeString;
+    }
+
+    public static List<Trip> loadTrips(TripManager tripManager) {
         List<Trip> trips = new ArrayList<>();
-        File file = new File(FILE_PATH);
+        File dataFile = new File(FILE_PATH);
 
-        // Check if file exists
-        if (!file.exists()) {
-            LOGGER.warning("No travel diary file found");
+        if (!dataFile.exists()) {
             return trips;
         }
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
-            Trip currentTrip = null;
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                // Process trip entries
-                if (line.startsWith(TRIP_MARKER)) {
-                    currentTrip = processTripEntry(line);
-                    if (currentTrip != null) {
-                        trips.add(currentTrip);
-                    }
-                } else if (line.startsWith(PHOTO_MARKER) && currentTrip != null) {
-                    processPhotoEntry(currentTrip, line);
-                }
-            }
-
-            LOGGER.info("Trips loaded successfully");
-        } catch (IOException loadError) {
-            LOGGER.log(Level.SEVERE, "Trip load failed", loadError);
+        try (BufferedReader reader = new BufferedReader(new FileReader(dataFile))) {
+            trips = processFileLines(reader, tripManager);
+        } catch (IOException e) {
+            System.out.println("Error reading trips from file: " + e.getMessage());
         }
 
         return trips;
     }
 
-    private static Trip processTripEntry(String line) {
-        String[] tripParts = line.substring(TRIP_MARKER.length()).split(";");
+    private static List<Trip> processFileLines(BufferedReader reader, TripManager tripManager) throws IOException {
+        List<Trip> trips = new ArrayList<>();
+        String line;
+        Trip currentTrip = null;
 
-        // Validate trip parts
-        if (tripParts.length < 3) {
-            LOGGER.warning("Malformed trip entry");
-            return null;
+        while ((line = reader.readLine()) != null) {
+            String[] parts = line.split(" \\| ");
+
+            if (isNewTripMarker(parts)) {
+                currentTrip = handleTripCreation(parts, tripManager, currentTrip, trips);
+            } else if (isAlbumMarker(parts, currentTrip)) {
+                handleAlbumMarker(parts, currentTrip);
+            } else if (isPhotoMarker(parts, currentTrip)) {
+                handlePhotoAddition(parts, currentTrip);
+            }
+        }
+
+        // Add the last trip to the list
+        if (currentTrip != null) {
+            trips.add(currentTrip);
+        }
+
+        return trips;
+    }
+
+    private static boolean isNewTripMarker(String[] parts) {
+        return parts[0].equals(TRIP_MARKER);
+    }
+
+    private static boolean isAlbumMarker(String[] parts, Trip currentTrip) {
+        return parts[0].equals("A") && currentTrip != null;
+    }
+
+    private static boolean isPhotoMarker(String[] parts, Trip currentTrip) {
+        return parts[0].equals(PHOTO_MARKER) && currentTrip != null && currentTrip.album != null;
+    }
+
+    private static Trip handleTripCreation(String[] parts, TripManager tripManager, Trip previousTrip, List<Trip> trips) {
+        // Add previous trip to the list if it exists
+        if (previousTrip != null) {
+            trips.add(previousTrip);
         }
 
         try {
-            return new Trip(
-                    decodeString(tripParts[0]),
-                    decodeString(tripParts[1]),
-                    decodeString(tripParts[2])
-            );
-        } catch (Exception createError) {
-            LOGGER.log(Level.WARNING, "Failed to create trip", createError);
+            String name = decodeString(parts[1]);
+            String description = decodeString(parts[2]);
+            String location = decodeString(parts[3]);
+
+            // Use the existing addTrip method
+            tripManager.addTrip(name, description, location);
+
+            // Get the last added trip
+            Trip currentTrip = tripManager.getTrips().get(tripManager.getTrips().size() - 1);
+
+            // Ensure the trip has an album
+            if (currentTrip.album == null) {
+                currentTrip.album = new Album();
+            }
+
+            return currentTrip;
+        } catch (TravelDiaryException e) {
+            System.out.println("Error creating trip: " + e.getMessage());
             return null;
         }
     }
 
-    private static void processPhotoEntry(Trip currentTrip, String line) {
-        String[] photoParts = line.substring(PHOTO_MARKER.length()).split(";");
+    private static void handleAlbumMarker(String[] parts, Trip currentTrip) {
+        String albumName = decodeString(parts[1]);
+        System.out.println("Loading album for trip: " + albumName);
+    }
 
-        // Validate photo parts
-        if (photoParts.length < 5) {
-            LOGGER.warning("Malformed photo entry");
-            return;
-        }
-
-        LocalDateTime photoTime = parsePhotoDateTime(photoParts[4]);
-
+    private static void handlePhotoAddition(String[] parts, Trip currentTrip) {
         try {
+            LocalDateTime photoTime = extractPhotoTime(parts);
+
             if (photoTime != null) {
                 currentTrip.album.addPhoto(
-                        decodeString(photoParts[0]),
-                        decodeString(photoParts[1]),
-                        decodeString(photoParts[2]),
-                        decodeString(photoParts[3]),
+                        decodeString(parts[1]),   // file path
+                        decodeString(parts[2]),   // photo name
+                        decodeString(parts[3]),   // caption
+                        "",                       // location (seems unused)
                         photoTime
                 );
             } else {
                 currentTrip.album.addPhoto(
-                        decodeString(photoParts[0]),
-                        decodeString(photoParts[1]),
-                        decodeString(photoParts[2]),
-                        decodeString(photoParts[3])
+                        decodeString(parts[1]),   // file path
+                        decodeString(parts[2]),   // photo name
+                        decodeString(parts[3]),   // caption
+                        ""                        // location (seems unused)
                 );
             }
-        } catch (TravelDiaryException photoError) {
-            LOGGER.log(Level.WARNING, "Photo addition failed", photoError);
+        } catch (TravelDiaryException e) {
+            System.out.println("Error adding photo to album: " + e.getMessage());
         }
     }
 
-    private static LocalDateTime parsePhotoDateTime(String dateTimeString) {
-        if (dateTimeString == null || dateTimeString.isEmpty()) {
-            return null;
-        }
-
-        try {
-            return LocalDateTime.parse(dateTimeString, DATETIME_FORMAT);
-        } catch (Exception timeError) {
-            LOGGER.log(Level.WARNING, "Invalid photo datetime", timeError);
-            return null;
-        }
+    private static LocalDateTime extractPhotoTime(String[] parts) {
+        return (parts.length > 4 && !parts[4].isEmpty())
+                ? LocalDateTime.parse(parts[4], DATETIME_FORMAT)
+                : null;
     }
 
-    // Encoding method to handle special characters
+    /**
+     * Encodes a string to handle special characters.
+     *
+     * @param input String to encode
+     * @return Encoded string
+     */
     private static String encodeString(String input) {
         if (input == null) {
             return "";
         }
-        return input.replace(";", "\\semicolon")
-                .replace("=", "\\equals")
-                .replace("\n", "\\newline");
+
+        String result = input;
+        result = result.replace("|", "\\pipe");
+        result = result.replace("\n", "\\newline");
+        return result;
     }
 
-    // Decoding method to restore original string
+    /**
+     * Decodes a string to restore original characters.
+     *
+     * @param input String to decode
+     * @return Decoded string
+     */
     private static String decodeString(String input) {
         if (input == null) {
             return "";
         }
-        return input.replace("\\semicolon", ";")
-                .replace("\\equals", "=")
-                .replace("\\newline", "\n");
+
+        String result = input;
+        result = result.replace("\\pipe", "|");
+        result = result.replace("\\newline", "\n");
+        return result;
     }
 }
