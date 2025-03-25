@@ -22,12 +22,11 @@ public class Ui {
     public void showWelcome() {
         System.out.println("Welcome to your Travel Diary Management System!\nTo continue, please press one of the " +
                 "commands.\n");
-        System.out.println("[Modify UI on start-up based on storage.]");
         showAvailableCommands();
     }
 
     public void showLine() {
-        System.out.println("------------------------------------------------------------");
+        System.out.println("----");
     }
 
     public void showToUser(String message) {
@@ -41,12 +40,5 @@ public class Ui {
     public void showAvailableCommands() {
         Arrays.stream(COMMAND_ARRAY).forEach((i) -> System.out.println("    - " + i));
         System.out.println(System.lineSeparator());
-        showLine();
-    }
-
-    public void showAddPhotoCommandFormat() {
-        System.out.println(("\tBefore adding a photo, " +
-                "please select a trip first. using 'select' [Trip ID] command. To view all " +
-                "your trips, use 'list'"));
     }
 }

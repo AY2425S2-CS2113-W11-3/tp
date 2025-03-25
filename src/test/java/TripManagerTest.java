@@ -26,11 +26,7 @@ class TripManagerTest {
         assertDoesNotThrow(() -> {
             tripManager.addTrip("Japan Trip", "Skiing in Hokkaido", "Japan");
         });
-        try {
-            tripManager.deleteTrip(1);
-        } catch (Exception e) {
-            System.out.print(e.getMessage());
-        }
+        tripManager.deleteTrip(1);
         tripManager.viewTrips(); // Should show no trips
     }
 

@@ -1,6 +1,6 @@
 package album;
 
-import exception.InvalidIndexException;
+import exception.TravelDiaryException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,7 +31,7 @@ class AlbumTest {
         System.setOut(originalOut);
         String output = outContent.toString().trim();
         // Expect the photo to be listed with its index and photoName (via Photo.toString)
-        assertTrue(output.contains("MyPhoto"), "View photos should list the added photo.");
+        assertTrue(output.contains("0: MyPhoto"), "View photos should list the added photo.");
     }
 
     @Test
@@ -49,7 +49,7 @@ class AlbumTest {
         System.setOut(originalOut);
         String output = outContent.toString().trim();
         // Expect the photo to be listed with its index and photoName
-        assertTrue(output.contains("Photo2"), "View photos should list the added photo using default datetime.");
+        assertTrue(output.contains("0: Photo2"), "View photos should list the added photo using default datetime.");
     }
 
     @Test
@@ -66,7 +66,7 @@ class AlbumTest {
 
         System.setOut(originalOut);
         String output = outContent.toString().trim();
-        assertTrue(output.contains("deleted"), "Photo should be deleted successfully.");
+        assertTrue(output.contains("Photo deleted successfully."), "Photo should be deleted successfully.");
 
         // Test deletion with an invalid index. Since the album is now empty,
         // deleting index 0 should print an error message.
@@ -90,7 +90,7 @@ class AlbumTest {
         System.setOut(originalOut);
 
         String output = outContent.toString().trim();
-        assertTrue(output.contains("No photos are found."), "View photos should indicate no photos found.");
+        assertTrue(output.contains("No photos found."), "View photos should indicate no photos found.");
 
         // Test viewPhotos on a non-empty album
         assertDoesNotThrow(() -> album.addPhoto("path/to/photo1.jpg", "Photo1", "Caption1",
@@ -104,8 +104,8 @@ class AlbumTest {
         System.setOut(originalOut);
 
         output = outContent.toString().trim();
-        assertTrue(output.contains("Photo1"), "First photo should be listed.");
-        assertTrue(output.contains("Photo2"), "Second photo should be listed.");
+        assertTrue(output.contains("0: Photo1"), "First photo should be listed.");
+        assertTrue(output.contains("1: Photo2"), "Second photo should be listed.");
     }
 
     @Test
@@ -121,14 +121,14 @@ class AlbumTest {
         assertDoesNotThrow(()-> album.selectPhoto(0));
         System.setOut(originalOut);
         String output = outContent.toString().trim();
-        assertTrue(output.contains("MyPhoto"), "Selected photo details should be printed.");
-        assertTrue(output.contains("Caption"), "Selected photo caption should be printed.");
-        assertTrue(output.contains("Paris"), "Selected photo location should be printed.");
+        assertTrue(output.contains("Name: MyPhoto"), "Selected photo details should be printed.");
+        assertTrue(output.contains("caption: Caption"), "Selected photo caption should be printed.");
+        assertTrue(output.contains("location: Paris"), "Selected photo location should be printed.");
 
         // Test selecting a photo with an invalid index.
         // Since the selectPhoto method doesn't return after printing an error message,
         // it will eventually try to access an invalid index and throw an IndexOutOfBoundsException.
-        assertThrows(InvalidIndexException.class, () -> {
+        assertThrows(TravelDiaryException.class, () -> {
             album.selectPhoto(5);
         }, "Selecting photo with an invalid index should throw an IndexOutOfBoundsException.");
     }

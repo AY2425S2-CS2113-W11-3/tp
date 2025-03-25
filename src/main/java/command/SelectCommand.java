@@ -1,6 +1,6 @@
 package command;
 
-import exception.InvalidIndexException;
+import exception.TravelDiaryException;
 import trip.TripManager;
 import ui.Ui;
 
@@ -12,13 +12,9 @@ public class SelectCommand extends Command {
     }
 
     @Override
-    public void execute(TripManager tripManager, Ui ui, int fsmValue) throws InvalidIndexException {
+    public void execute(TripManager tripManager, Ui ui, int fsmValue) throws TravelDiaryException {
         if (fsmValue == 0){
-            try {
-                tripManager.selectTrip(index);
-            } catch (InvalidIndexException e) {
-                System.out.println(e.getMessage());
-            }
+            tripManager.selectTrip(index);
         } else if (fsmValue == 1) {
             tripManager.getSelectedTrip().album.selectPhoto(index);
         }

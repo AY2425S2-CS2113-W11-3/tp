@@ -1,6 +1,5 @@
 package album;
 
-import exception.InvalidIndexException;
 import exception.TravelDiaryException;
 import photo.Photo;
 import photo.PhotoFrame;
@@ -11,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Album {
-    private final List<Photo> photos = new ArrayList<>();
-    private Photo selectedPhoto = null;
+    public final List<Photo> photos = new ArrayList<>();
+    public Photo selectedPhoto = null;
 
 
     public void addPhoto(String filePath, String photoName, String caption, String location, LocalDateTime datetime)
@@ -24,7 +23,7 @@ public class Album {
     public void addPhoto(String filePath, String photoName, String caption, String location)
             throws TravelDiaryException {
         photos.add(new Photo(filePath, photoName, caption, location));
-        System.out.printf("\tPhoto [%s] has been added successfully.\n", photoName);
+        System.out.println("Photo added successfully.");
     }
 
     public void deletePhoto(int index) {
@@ -32,17 +31,17 @@ public class Album {
             System.out.println("Invalid photo index.");
             return;
         }
-        Photo photo = photos.get(index);
         photos.remove(index);
-        System.out.printf("\tPhoto [%s] has been deleted successfully.\n", photo.getPhotoName());
+        System.out.println("Photo deleted successfully.");
     }
 
     public void viewPhotos() {
         if (photos.isEmpty()) {
-            System.out.println("No photos are found.");
+            System.out.println("No photos found.");
         } else {
-            System.out.println("\n\tHere are all your photos:");
-            System.out.println(this);
+            for (int i = 0; i < photos.size(); i++) {
+                System.out.println(i + ": " + photos.get(i)); // Display index with photos detail
+            }
         }
     }
 
@@ -50,27 +49,18 @@ public class Album {
         this.selectedPhoto = selectedPhoto;
     }
 
-    public void selectPhoto(int index) throws InvalidIndexException {
+    public void selectPhoto(int index) throws TravelDiaryException {
         if (index < 0 || index >= photos.size()) {
-            throw new InvalidIndexException();
+            throw new TravelDiaryException("Invalid photo index.");
         }
         selectedPhoto = photos.get(index);
-        System.out.println("\t" + selectedPhoto);
+        System.out.println("Name: " + selectedPhoto.getPhotoName() + " caption: " + selectedPhoto.getCaption() +
+                " location: " + selectedPhoto.getLocation());
         try {
             PhotoFrame photoFrame = PhotoPrinter.createFrame(selectedPhoto);
             PhotoPrinter.display(photoFrame);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder albumDetails = new StringBuilder();
-        for (int i = 0; i < photos.size(); i++) {
-            albumDetails.append("\t").append(i + 1).append(") ")
-                    .append(photos.get(i).toString()).append("\n"); // Append details
-        }
-        return albumDetails.toString(); // Convert StringBuilder to String
     }
 }
