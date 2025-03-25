@@ -2,7 +2,6 @@ package trip;
 import exception.TravelDiaryException;
 
 import java.util.List;
-import album.Album;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 

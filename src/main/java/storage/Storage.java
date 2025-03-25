@@ -131,7 +131,10 @@ public class Storage {
         return parts[0].equals(PHOTO_MARKER) && currentTrip != null && currentTrip.album != null;
     }
 
-    private static Trip handleTripCreation(String[] parts, TripManager tripManager, Trip previousTrip, List<Trip> trips) {
+    private static Trip handleTripCreation(String[] parts,
+                                           TripManager tripManager,
+                                           Trip previousTrip,
+                                           List<Trip> trips) {
         // Add previous trip to the list if it exists
         if (previousTrip != null) {
             trips.add(previousTrip);
