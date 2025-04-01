@@ -90,8 +90,11 @@ The app enables roadtrippers to seamlessly track their journeys on the go. It au
 
 ## Glossary
 
-* *glossary item* - Definition
-
+* *Trip - A user-defined journey or travel event that includes details such as start/end points, duration, and associated albums or photos.
+* *Album - A collection of photos linked to a specific trip, used to organize visual memories captured during the journey.
+* *Photo - An image file with metadata (e.g., caption, location, timestamp) that documents a specific moment within a trip.
+* *PhotoFrame - A graphical component responsible for rendering a photo and its metadata in a visually appealing layout.
+* *TripManager - A utility class or module responsible for creating and managing Trip objects during data loading and application runtime.
 ## Instructions for manual testing
 
 {Give instructions on how to do a manual product testing e.g., how to load sample data to be used for testing}
