@@ -47,45 +47,55 @@ public class HelpCommand extends Command {
      * @param fsm The current state of the finite state machine
      */
     private void showHelp(int fsm) {
-        System.out.println("=== Travel Diary Help ===");
+        System.out.println("============ TRAVEL DIARY HELP ============");
 
         // General commands - always available
-        System.out.println("\nGeneral Commands:");
+        System.out.println("\n📋 GENERAL COMMANDS:");
         System.out.println("  help              - Display this help information");
-        System.out.println("  bye               - Exit the application");
-        System.out.println("  menu              - Return to main menu");
+        System.out.println("                       Example: help");
+        System.out.println("  bye               - Save and exit the application");
+        System.out.println("  menu              - Return to the main menu");
 
         // State-specific commands
         if (fsm == 0) {
             // Trip management commands
-            System.out.println("\nTrip Commands:");
-            System.out.println("  list                - List all trips");
-            System.out.println("  add_trip n# d# l#   - Add a new trip");
-            System.out.println("                         n# - Trip name");
-            System.out.println("                         d# - Trip description");
-            System.out.println("  select <index>      - Select a trip to view/edit");
-            System.out.println("  delete <index>      - Delete a specific trip");
+            System.out.println("\n🧳 TRIP MANAGEMENT:");
+            System.out.println("  list                - List all your saved trips");
+            System.out.println("  add_trip n# d#      - Add a new trip to your collection");
+            System.out.println("                         n# - Trip name (required)");
+            System.out.println("                         d# - Trip description (optional)");
+            System.out.println("                         Example: add_trip n#Paris Vacation d#Summer trip to France");
+            System.out.println("  select <index>      - Select a trip to view and manage its photos");
+            System.out.println("                         Example: select 2");
+            System.out.println("  delete <index>      - Delete a trip and all its photos");
+            System.out.println("                         Example: delete 3");
         } else if (fsm == 1) {
             // Photo management commands
-            System.out.println("\nPhoto Commands:");
-            System.out.println("  list                - List all photos in the current album");
-            System.out.println("  add_photo f# n# c# l# - Add a new photo to the album");
-            System.out.println("                         f# - File path");
-            System.out.println("                         n# - Photo name");
-            System.out.println("                         c# - Caption");
-            System.out.println("                         l# - Location");
-            System.out.println("  select <index>      - Select a photo to view/edit");
-            System.out.println("  delete <index>      - Delete a specific photo");
+            System.out.println("\n📸 PHOTO MANAGEMENT:");
+            System.out.println("  list                - List all photos in the current trip");
+            System.out.println("  add_photo f# n# c#  - Add a new photo to the current trip");
+            System.out.println("                         f# - File path (required)");
+            System.out.println("                         n# - Photo name (required)");
+            System.out.println("                         c# - Photo caption (required)");
+            System.out.println("Example: add_photo f#images/eiffel.jpg n#Eiffel Tower c#Evening view");
+            System.out.println("  select <index>      - View a photo's details");
+            System.out.println("                         Example: select 1");
+            System.out.println("  delete <index>      - Remove a photo from the current trip");
+            System.out.println("                         Example: delete 2");
         }
 
-        System.out.println("\nExample usage:");
+        System.out.println("\n💡 TIPS:");
+        System.out.println("• Parameters marked with # must include the prefix (n#, d#, f#, etc.)");
+        System.out.println("• Use quotation marks for values containing spaces: n#\"My Trip\"");
+        System.out.println("• The application automatically extracts date, time, and location from photos if possible");
+
         if (fsm == 0) {
-            System.out.println("  add_trip n#Paris Trip d#Vacation in Paris");
+            System.out.println("  • Select a trip to add and manage photos within that trip");
         } else if (fsm == 1) {
-            System.out.println("  add_photo f#path/to/image.jpg n#Eiffel Tower c#View from Trocadero");
+            System.out.println("  • Use 'menu' to return to trip management");
         }
 
-        System.out.println("======================");
+        System.out.println("==========================================");
     }
 
     @Override

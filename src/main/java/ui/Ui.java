@@ -19,6 +19,7 @@ public class Ui {
     public void showWelcome() {
         System.out.println("Welcome to your Travel Diary Management System!");
         System.out.println("Capture and manage your travel memories with ease!\n");
+        System.out.println("Please type \"help\" if you need instructions \n");
     }
 
     public void showLine() {
